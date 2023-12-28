@@ -5,8 +5,8 @@ using UnityEngine.AI;
 
 public class Unit : MonoBehaviour
 {
-    //[RequireComponent()]
-    UnitStats stats;
+    //RequireComponent(UnitStats)]
+    public UnitStats stats;
     public int OwnerID = 0;
     UnitSelector USArmy = UnitSelector.SelectorSingleton;
     NavMeshAgent agent;
@@ -19,10 +19,16 @@ public class Unit : MonoBehaviour
     {
 
     }
-    public void Move(Vector3 position)
+    /// <summary>
+    /// Summary
+    /// </summary>
+    /// <param name="position">Some Parameter.</param>
+    /// <returns>returns true if move succeeded.</returns>
+    public bool Move(Vector3 position)
     {
-        
-            agent.destination = position;
+
+        if (agent) { agent.destination = position; return true; }
+        else return false;
     }
     public void Destroy()
     {

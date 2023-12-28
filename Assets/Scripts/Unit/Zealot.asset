@@ -10,12 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d903db0bda543e40884cde982854deb, type: 3}
-  m_Name: New Unit Stats
+  m_Name: Zealot
   m_EditorClassIdentifier: 
   Icon: {fileID: 0}
-  Name: 
-  Description: 
-  Health: 0
-  Shield: 0
-  Damage: 0
-  MoveSpeed: 0
+  Name: SlipKnot
+  Description: a Band (stk-tshhh) of warriors
+  Health: 500
+  Shield: 20
+  Damage: 100
+  AttackSpeed: 1.5
+  MoveSpeed: 50
+  IsBuilding: 0

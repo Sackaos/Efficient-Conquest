@@ -132,7 +132,7 @@ public class UnitSelector : MonoBehaviour
             {
                 foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
                 {
-                 go.GetComponent<Unit>().Move(rayHit.point);
+                    if(!go.GetComponent<Unit>().Move(rayHit.point)) deselect(go);
                     
                 }
             }
