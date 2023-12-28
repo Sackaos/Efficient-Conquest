@@ -5,15 +5,18 @@ using UnityEngine.AI;
 
 public class NavigationScript : MonoBehaviour
 {
-    public Transform player;
+    private UnitSelector unitSelector;
     private NavMeshAgent agent;
     void Start()
     {
-        agent=GetComponent<NavMeshAgent>(); 
+        foreach (var key in unitSelector.selectedTable.Keys)
+        {
+            agent = GetComponent<NavMeshAgent>();
+
+        }
     }
     void Update()
     {
-        agent.destination=player.position;
-        
+       
     }
 }

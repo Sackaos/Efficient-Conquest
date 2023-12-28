@@ -9,6 +9,10 @@ namespace Unity.AI.Navigation.Samples
     [RequireComponent(typeof(NavMeshAgent))]
     public class ClickToMove : MonoBehaviour
     {
+
+
+
+
         NavMeshAgent m_Agent;
         RaycastHit m_HitInfo = new RaycastHit();
     
@@ -19,7 +23,7 @@ namespace Unity.AI.Navigation.Samples
     
         void Update()
         {
-            if (Input.GetMouseButtonDown(0) && !Input.GetKey(KeyCode.LeftShift))
+            if (Input.GetMouseButtonDown(1) && !Input.GetKey(KeyCode.LeftShift))
             {
                 var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray.origin, ray.direction, out m_HitInfo))

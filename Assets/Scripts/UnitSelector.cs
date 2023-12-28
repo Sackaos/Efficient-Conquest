@@ -8,14 +8,26 @@ using UnityEngine.InputSystem;
 
 public class UnitSelector : MonoBehaviour
 {
+    public static UnitSelector SelectorSingleton;
+    private void Awake()
+    {
+        if (!SelectorSingleton)
+        {
+            SelectorSingleton = this;
+            return;
+        }
+        else {
+            Debug.LogError("BAU! UNIT SELECTOR not SINGLETON");
+        Destroy(this);
+        }
+    }
 
     MeshCollider selectionBox;
     Mesh selectionMesh;
     Vector2[] corners;
     Vector3[] verts;
 
-    
-    Dictionary<int, GameObject> selectedTable = new Dictionary<int, GameObject>();
+    public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
     public void addSelected(GameObject gameObject)
     {
         selectionVisualizer(gameObject);
@@ -60,8 +72,8 @@ public class UnitSelector : MonoBehaviour
     RaycastHit hit;
     bool dragSelect = false;
 
-    [SerializeField] LayerMask unitLayer;
-    [SerializeField] LayerMask groundLayer;
+    public LayerMask unitLayer;
+    [SerializeField] public LayerMask groundLayer;
 
     Vector3 startMousePos = Vector3.zero, endMousePos = Vector3.zero;
     private void Update()
@@ -111,6 +123,19 @@ public class UnitSelector : MonoBehaviour
             }
             dragSelect = false;
 
+        }
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            var cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(cameraRay.origin, cameraRay.direction, out RaycastHit rayHit, 5000, groundLayer))
+            {
+                foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
+                {
+                 go.GetComponent<Unit>().Move(rayHit.point);
+                    
+                }
+            }
         }
     }
 
