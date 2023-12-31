@@ -93,6 +93,7 @@ public class UnitSelector : MonoBehaviour
         //mouseUp
         if (Input.GetMouseButtonUp(0))
         {
+           
             endMousePos = Input.mousePosition;
             if (!dragSelect)//single select
             {
