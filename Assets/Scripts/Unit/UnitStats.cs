@@ -14,9 +14,24 @@ public class UnitStats : ScriptableObject
     public int Damage;
     public float AttackSpeed;
     public float MoveSpeed;
-    public bool IsBuilding;
-     
-    
+    public bool IsBuilding; 
+    public ActionSet[] Actions;
 
 
+
+}
+
+public enum Actions
+{
+    Empty,
+    Move,
+    Attack,
+    Build,
+    SpawnFunkyStuff
+}
+
+[Serializable]public struct ActionSet
+{
+    Actions actions;
+    int id;
 }
