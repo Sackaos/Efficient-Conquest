@@ -27,7 +27,23 @@ public class UnitStats : ScriptableObject
     public int Resource1Cost;
     public int Resource2Cost;
     public Technologies[] TechnologyRequirements;
+    public ActionSet[] Actions;
 
 
 
+}
+
+public enum Actions
+{
+    Empty,
+    Move,
+    Attack,
+    Build,
+    SpawnFunkyStuff
+}
+
+[Serializable]public struct ActionSet
+{
+    Actions actions;
+    int id;
 }
