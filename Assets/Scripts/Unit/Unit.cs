@@ -20,9 +20,9 @@ public class Unit : MonoBehaviour
 
     }
     /// <summary>
-    /// Summary
+    /// this is le Summary
     /// </summary>
-    /// <param name="position">Some Parameter.</param>
+    /// <param name="position">the desired position to move to.</param>
     /// <returns>returns true if move succeeded.</returns>
     public bool Move(Vector3 position)
     {

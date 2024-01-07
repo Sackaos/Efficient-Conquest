@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Diagnostics;
 using UnityEngine.InputSystem;
 
 public class UnitSelector : MonoBehaviour
@@ -21,11 +23,6 @@ public class UnitSelector : MonoBehaviour
         Destroy(this);
         }
     }
-
-    MeshCollider selectionBox;
-    Mesh selectionMesh;
-    Vector2[] corners;
-    Vector3[] verts;
 
     public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
     public void addSelected(GameObject gameObject)
@@ -182,9 +179,14 @@ public class UnitSelector : MonoBehaviour
 
         }
     }
-    private void OnDrawGizmos()
+    private void OnGUI()
     {
+        if (dragSelect) {
+            var rect = SelectorGUI.GetScreenRect(startMousePos, Input.mousePosition);
+            SelectorGUI.DrawScreenRect(rect, new Color(0.8f, 0.8f, 0.95f, 0.25f));
+            SelectorGUI.DrawScreenRectBorder(rect,2, new Color(0.8f, 0.8f, 0.95f));
 
+        }
 
     }
 }
