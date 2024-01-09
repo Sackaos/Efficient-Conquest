@@ -15,9 +15,16 @@ MonoBehaviour:
   Icon: {fileID: 0}
   Name: SlipKnot
   Description: a Band (stk-tshhh) of warriors
+  IsBuilding: 0
+  MoveSpeed: 50
   Health: 500
   Shield: 20
   Damage: 100
   AttackSpeed: 1.5
-  MoveSpeed: 50
-  IsBuilding: 0
+  AttackRange: 0
+  Resource1Cost: 0
+  Resource2Cost: 0
+  TechnologyRequirements: 
+  Actions:
+  - action: 1
+    Spot: 0

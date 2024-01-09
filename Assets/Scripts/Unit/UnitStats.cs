@@ -5,14 +5,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Scriptable object/Inventory item")]
 public class UnitStats : ScriptableObject
 {
-    public enum Technologies
-    {
-        house, 
-        barracks,
-        Garage,
-        AeroPort,
-        LaserWeapons
-    }
     public Sprite Icon;
     public string Name;
     [TextArea(4, 4)]
@@ -32,18 +24,22 @@ public class UnitStats : ScriptableObject
 
 
 }
-
-public enum Actions
+public enum Technologies
 {
-    Empty,
-    Move,
-    Attack,
-    Build,
-    SpawnFunkyStuff
+    house,
+    barracks,
+    Garage,
+    AeroPort,
+    LaserWeapons,
+    TankUnlock
 }
 
-[Serializable]public struct ActionSet
+
+
+[Serializable]
+public struct ActionSet
 {
-    Actions actions;
-    int id;
+    public Unit.Actions action;
+    public int Spot;
+  
 }

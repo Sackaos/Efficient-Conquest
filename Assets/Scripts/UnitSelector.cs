@@ -3,10 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
+//using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Diagnostics;
 using UnityEngine.InputSystem;
+using UnityEngine.Timeline;
 
 public class UnitSelector : MonoBehaviour
 {
@@ -18,12 +21,16 @@ public class UnitSelector : MonoBehaviour
             SelectorSingleton = this;
             return;
         }
-        else {
-            Debug.LogError("BAU! UNIT SELECTOR not SINGLETON");
-        Destroy(this);
+        else
+        {
+            Debug.LogError("BAUBAU! UNIT SELECTOR not SINGLETON");
+            Destroy(this);
         }
     }
-
+    /*public override void OnNetworkSpawn()
+    {
+        if (!IsOwner) Destroy(this);
+    }*/
     public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
     public void addSelected(GameObject gameObject)
     {
@@ -47,8 +54,6 @@ public class UnitSelector : MonoBehaviour
     }
     public void deselectAll()
     {
-        Debug.Log(selectedTable);
-
         foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
         {
             deselect(go);
@@ -75,6 +80,35 @@ public class UnitSelector : MonoBehaviour
     Vector3 startMousePos = Vector3.zero, endMousePos = Vector3.zero;
     private void Update()
     {
+
+        LeftClick();
+        RightClick();
+
+
+    }
+
+    private void RightClick()
+    {
+        Debug.Log(selectedTable.Count);
+        if (Input.GetMouseButtonDown(1) && selectedTable.Count > 0)
+        {
+            var cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(cameraRay.origin, cameraRay.direction, out RaycastHit rayHit, 5000, groundLayer))
+            {
+                foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
+                {
+                    if (!go.GetComponent<Unit>().Move(rayHit.point)) deselect(go);
+
+                }
+            }
+            spawnMarker(rayHit.point);
+        }
+    }
+
+
+    private void LeftClick()
+    {
+        //Left click
         if (Input.GetMouseButtonDown(0))
         {
             startMousePos = Input.mousePosition;
@@ -87,10 +121,9 @@ public class UnitSelector : MonoBehaviour
             }
             else dragSelect = false;
         }
-        //mouseUp
         if (Input.GetMouseButtonUp(0))
         {
-           
+
             endMousePos = Input.mousePosition;
             if (!dragSelect)//single select
             {
@@ -123,20 +156,20 @@ public class UnitSelector : MonoBehaviour
 
         }
 
-        if (Input.GetMouseButtonDown(1))
-        {
-            var cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(cameraRay.origin, cameraRay.direction, out RaycastHit rayHit, 5000, groundLayer))
-            {
-                foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
-                {
-                    if(!go.GetComponent<Unit>().Move(rayHit.point)) deselect(go);
-                    
-                }
-            }
-        }
     }
-
+    [SerializeField]GameObject markerPrefab;
+    List<GameObject> markers = new List<GameObject>();
+     void spawnMarker(Vector3 point)
+    {
+        markers.Add(Instantiate(markerPrefab,point,Quaternion.identity));
+        Invoke("DestroyLatestMarker",0.75f);
+    }
+     void DestroyLatestMarker()
+    {
+        GameObject marker= markers.First();
+        markers.Remove(marker);
+        Destroy(marker);
+    }
 
     void boxSelect(Vector3 startMousePos, Vector3 endMousePos)
     {
@@ -168,24 +201,23 @@ public class UnitSelector : MonoBehaviour
             Vector3 extents = new Vector3(Mathf.Abs(extentsosia.x), Mathf.Abs(extentsosia.y), Mathf.Abs(extentsosia.z));
             extents.y = 20;
             Collider[] colliders = Physics.OverlapBox(center, extents, Quaternion.Euler(Camera.main.transform.forward), unitLayer);
-            Debug.Log("###");
 
             foreach (var collider in colliders)
             {
                 //if(Own(unit))
                 addSelected(collider.gameObject);
-                Debug.Log(collider.name);
+                //Debug.Log(collider.name);
             }
-            Debug.Log("###");
 
         }
     }
     private void OnGUI()
     {
-        if (dragSelect) {
+        if (dragSelect)
+        {
             var rect = SelectorGUI.GetScreenRect(startMousePos, Input.mousePosition);
-            SelectorGUI.DrawScreenRect(rect, new Color(0.8f, 0.8f, 0.95f, 0.25f));
-            SelectorGUI.DrawScreenRectBorder(rect,2, new Color(0.8f, 0.8f, 0.95f));
+            SelectorGUI.DrawScreenRect(rect, new Color(0.8f, 0.8f, 0.95f, 0.15f));
+            SelectorGUI.DrawScreenRectBorder(rect, 2, new Color(0.8f, 0.8f, 0.95f));
 
         }
 
