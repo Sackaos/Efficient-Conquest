@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
+using Unity.Netcode;
 //using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -13,10 +14,11 @@ using UnityEngine.Timeline;
 
 public class UnitSelector : MonoBehaviour
 {
-    public static UnitSelector SelectorSingleton;
+    
+    //public static UnitSelector SelectorSingleton;
     private void Awake()
     {
-        if (!SelectorSingleton)
+        /*if (!SelectorSingleton)
         {
             SelectorSingleton = this;
             return;
@@ -25,7 +27,7 @@ public class UnitSelector : MonoBehaviour
         {
             Debug.LogError("BAUBAU! UNIT SELECTOR not SINGLETON");
             Destroy(this);
-        }
+        }*/
     }
     /*public override void OnNetworkSpawn()
     {
@@ -62,11 +64,17 @@ public class UnitSelector : MonoBehaviour
 
     private void selectionVisualizer(GameObject gameObject)
     {
+        gameObject.transform.GetChild(0).gameObject.SetActive(true);
+
+        //gameObject.transform.GetChild(0).gameObject.transform.position.y=GetComponent<Renderer>().bounds.size
+
+
         gameObject.GetComponent<Renderer>().material.color = Color.red;
 
     }
     private void undoVisualization(GameObject gameObject)
     {
+        gameObject.transform.GetChild(0).gameObject.SetActive(false);
         gameObject.GetComponent<Renderer>().material.color = Color.white;
 
     }
@@ -89,7 +97,7 @@ public class UnitSelector : MonoBehaviour
 
     private void RightClick()
     {
-        Debug.Log(selectedTable.Count);
+        //Debug.Log(selectedTable.Count);
         if (Input.GetMouseButtonDown(1) && selectedTable.Count > 0)
         {
             var cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -97,14 +105,21 @@ public class UnitSelector : MonoBehaviour
             {
                 foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
                 {
-                    if (!go.GetComponent<Unit>().Move(rayHit.point)) deselect(go);
-
+                    if (!go.GetComponent<Unit>().CanMove(rayHit.point))
+                    {
+                        deselect(go);
+                    }
                 }
+                MoveServerRpc(rayHit.point, selectedTable.Values.ToArray<GameObject>());
             }
             spawnMarker(rayHit.point);
         }
     }
 
+    private void WhatTypeIsValues(Dictionary<int, GameObject>.ValueCollection values)
+    {
+        throw new NotImplementedException();
+    }
 
     private void LeftClick()
     {
@@ -157,16 +172,16 @@ public class UnitSelector : MonoBehaviour
         }
 
     }
-    [SerializeField]GameObject markerPrefab;
+    [SerializeField] GameObject markerPrefab;
     List<GameObject> markers = new List<GameObject>();
-     void spawnMarker(Vector3 point)
+    void spawnMarker(Vector3 point)
     {
-        markers.Add(Instantiate(markerPrefab,point,Quaternion.identity));
-        Invoke("DestroyLatestMarker",0.75f);
+        markers.Add(Instantiate(markerPrefab, point, Quaternion.identity));
+        Invoke("DestroyLatestMarker", 0.75f);
     }
-     void DestroyLatestMarker()
+    void DestroyLatestMarker()
     {
-        GameObject marker= markers.First();
+        GameObject marker = markers.First();
         markers.Remove(marker);
         Destroy(marker);
     }
@@ -211,6 +226,55 @@ public class UnitSelector : MonoBehaviour
 
         }
     }
+
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void MoveServerRpc(Vector3 shmovement, GameObject[] units, ServerRpcParams rpc = default)
+    {
+
+        // Debug.Log("id sent: "+id+" owner: "+ OwnerClientId);
+        /* GameObject[] a = GameObject.FindGameObjectsWithTag("Player");
+         foreach (GameObject GO in a)
+         {
+             if (GO.GetInstanceID() == id) {
+                 GO.GetComponent<CharacterController>().Move(new Vector3(10,10,10));
+                 //GO.active = false;
+                 Debug.Log("getInstaceID gud");
+                 break;
+             }
+             if (GO.GetComponent<NetworkBehaviour>().OwnerClientId == OwnerClientId)
+             {
+                 GO.GetComponent<CharacterController>().Move(new Vector3(10, 10, 10));
+                 //GO.active = false;
+                 Debug.Log("ownderCLientId gud");
+                 break;
+             }
+             if (GO.GetComponent<NetworkBehaviour>().OwnerClientId == rpc.Receive.SenderClientId) { }*/
+        
+
+        ulong clientId = rpc.Receive.SenderClientId;
+        foreach (GameObject unitGO in units)
+        {
+            var unit =unitGO.GetComponent<Unit>();
+            unit.OwnerID = clientId;
+            if (unit.OwnerID == clientId)
+            {
+                unit.MoveTo(shmovement);
+            }
+            else Debug.LogError("yowtf bro ur cheating UnitSelector/MoveServerRpc");
+        }
+        /*if (NetworkManager.Singleton.ConnectedClients.ContainsKey(clientId))
+        {
+            NetworkClient client = NetworkManager.Singleton.ConnectedClients[clientId];
+            client.PlayerObject.GetComponent<CharacterController>().Move(new Vector3(0, 1f, 0));
+            client.PlayerObject.transform.position = new Vector3(0, 1, 0);
+        }*/
+
+    }
+
+
+
     private void OnGUI()
     {
         if (dragSelect)

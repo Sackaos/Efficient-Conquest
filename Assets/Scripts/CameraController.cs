@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+    //GET MAX BOUNDS BY USING GetComponent<Renderer>().bounds.size
     public float panSpeed = 20f;
     public float panBorderThickness = 10f;
     public Vector2 panLimit;

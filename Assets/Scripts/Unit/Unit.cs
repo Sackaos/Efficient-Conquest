@@ -11,8 +11,8 @@ public class Unit : MonoBehaviour
 {
     //RequireComponent(UnitStats)]
     public UnitStats stats;
-    public int OwnerID = 0;
-    UnitSelector USArmy = UnitSelector.SelectorSingleton;
+    public ulong OwnerID = 0;
+    //UnitSelector USArmy = UnitSelector.SelectorSingleton;
     NavMeshAgent agent;
 
     void Start()
@@ -32,12 +32,17 @@ public class Unit : MonoBehaviour
     {
 
     }
-    public bool Move(Vector3 position)
+    public void MoveTo(Vector3 position)
     {
-        if (!CanDoAction(Actions.Move)) return false;
-        if (agent) { agent.destination = position; return true; }
-        else return false;
+       agent.destination = position;
     }
+    public bool CanMove(Vector3 position)
+    {
+        if (!CanDoAction(Actions.Move) || !agent) return false;
+        // agent.destination = position;
+        return true;
+    }
+
     public void Follow(Transform transfrom)
     {
         //move to follow to move;;
@@ -69,12 +74,12 @@ public class Unit : MonoBehaviour
     }
     public bool DoAction(Actions actionToPerform)
     {
-        bool flag =CanDoAction(actionToPerform);
+        bool flag = CanDoAction(actionToPerform);
         if (flag)
             switch (actionToPerform)
             {
                 case (Actions.Move):
-                    Move(new Vector3(5, 0, 8));
+                    CanMove(new Vector3(5, 0, 8));
                     break;
                 case (Actions.SpawnFunkyStuff):
                     //spawn Funky stuff
