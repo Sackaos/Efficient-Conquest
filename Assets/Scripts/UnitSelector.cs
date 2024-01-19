@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using Unity.Netcode;
 //using Unity.Netcode;
@@ -95,6 +96,7 @@ public class UnitSelector : MonoBehaviour
 
     }
 
+    public GameObject goog;
     private void RightClick()
     {
         //Debug.Log(selectedTable.Count);
@@ -110,7 +112,8 @@ public class UnitSelector : MonoBehaviour
                         deselect(go);
                     }
                 }
-                MoveServerRpc(rayHit.point, selectedTable.Values.ToArray<GameObject>());
+                goog.GetComponent<UnitLogic>().MouveServerRpc(rayHit.point, selectedTable.Values.ToArray<GameObject>());
+                //MoveServerRpc(rayHit.point, selectedTable.Values.ToArray<GameObject>());
             }
             spawnMarker(rayHit.point);
         }
