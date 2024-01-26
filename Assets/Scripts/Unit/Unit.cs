@@ -14,7 +14,8 @@ public class Unit : MonoBehaviour
     public ulong OwnerID = 0;
     //UnitSelector USArmy = UnitSelector.SelectorSingleton;
     NavMeshAgent agent;
-
+    
+    //OwnerID = id;
     void Start()
     {
         if (stats && !stats.IsBuilding) agent = GetComponent<NavMeshAgent>();
@@ -34,18 +35,17 @@ public class Unit : MonoBehaviour
     }
     public void MoveTo(Vector3 position)
     {
-       agent.destination = position;
+        agent.destination = position;
     }
     public bool CanMove(Vector3 position)
     {
-        if (!CanDoAction(Actions.Move) || !agent) return false;
-        // agent.destination = position;
+        if (!CanDoAction(Actions.Move) || !agent || OwnerID!=UnitSelector.ID) return false;
         return true;
     }
 
     public void Follow(Transform transfrom)
     {
-        //move to follow to move;;
+        //move to follow to move;
     }
     public void Attack(Transform enemy)
     {

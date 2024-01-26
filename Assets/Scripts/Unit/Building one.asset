@@ -25,4 +25,7 @@ MonoBehaviour:
   Resource1Cost: 100
   Resource2Cost: 200
   TechnologyRequirements: 00000000
-  Actions: []
+  Actions:
+  - action: 3
+    id: 2
+  Graphics: {fileID: 0}

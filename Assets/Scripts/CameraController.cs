@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
     public float scrollSpeed = 20f;
     public float minY = 5f;
     public float maxY = 40f;
-    private bool PanToggle = true;
+    [SerializeField] private bool PanToggle = true;
     void Update()
     {
         if (Input.GetKey(KeyCode.Insert))PanToggle = !PanToggle;

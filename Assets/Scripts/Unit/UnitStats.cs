@@ -20,7 +20,7 @@ public class UnitStats : ScriptableObject
     public int Resource2Cost;
     public Technologies[] TechnologyRequirements;
     public ActionSet[] Actions;
-
+    public GameObject Graphics;
 
 
 }
@@ -40,6 +40,6 @@ public enum Technologies
 public struct ActionSet
 {
     public Unit.Actions action;
-    public int Spot;
+    public int id;
   
 }
