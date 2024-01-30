@@ -18,6 +18,22 @@ public class UnitSelector : MonoBehaviour
 
     public static UnitSelector SelectorSingleton;
     public static ulong ID;//NEED TO FIND A WAY TO UNSELECT UNITS NOT MINE
+    public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
+    public Unit SuperSelected { get; private set; }
+    RaycastHit hit;
+    bool dragSelect = false;
+
+    public LayerMask unitLayer;
+    public LayerMask groundLayer;
+
+    Vector3 startMousePos = Vector3.zero, endMousePos = Vector3.zero;
+    //##########      INPUT     ########
+
+
+
+    //##########      MARKERS     ########
+    [SerializeField] GameObject markerPrefab;
+    List<GameObject> markers = new List<GameObject>();
     private void Awake()
     {
         if (!SelectorSingleton)
@@ -31,6 +47,8 @@ public class UnitSelector : MonoBehaviour
             Destroy(this);
 
         }
+        unitLayer = LayerMask.GetMask("Unit");
+        groundLayer = LayerMask.GetMask("Ground");
     }
     private void Start()
     {
@@ -44,8 +62,6 @@ public class UnitSelector : MonoBehaviour
     }
     */
     //##########      SELECTION     ########
-    public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
-    public Unit SuperSelected { get; private set; }
 
     public void addSelected(GameObject gameObject)
     {
@@ -60,9 +76,9 @@ public class UnitSelector : MonoBehaviour
             deselect(gameObject);
         }
 
-        if(selectedTable.Count > 0)
+        if (selectedTable.Count > 0)
         {
-            SuperSelected=selectedTable.Values.ToArray<GameObject>()[0].GetComponent<Unit>();
+            SuperSelected = selectedTable.Values.ToArray<GameObject>()[0].GetComponent<Unit>();
             UnitHud.UnitHudSingleton.DisplayUnit(SuperSelected);
         }
 
@@ -72,7 +88,7 @@ public class UnitSelector : MonoBehaviour
     {
         undoVisualization(gameObject);
         selectedTable.Remove(gameObject.GetInstanceID());
-        if(selectedTable.Count == 0) { UnitHud.UnitHudSingleton.DisplayUnit(null); }
+        if (selectedTable.Count == 0) { UnitHud.UnitHudSingleton.DisplayUnit(null); }
 
     }
     public void deselectAll()
@@ -106,13 +122,7 @@ public class UnitSelector : MonoBehaviour
 
     //##########      INPUT     ########
 
-    RaycastHit hit;
-    bool dragSelect = false;
 
-    public LayerMask unitLayer;
-    [SerializeField] public LayerMask groundLayer;
-
-    Vector3 startMousePos = Vector3.zero, endMousePos = Vector3.zero;
     private void Update()
     {
 
@@ -129,24 +139,28 @@ public class UnitSelector : MonoBehaviour
         if (Input.GetMouseButtonDown(1) && selectedTable.Count > 0)
         {
             var cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(cameraRay.origin, cameraRay.direction, out RaycastHit rayHit, 5000, groundLayer))
+            if (Physics.Raycast(cameraRay.origin, cameraRay.direction, out RaycastHit rayHit, 5000, groundLayer + unitLayer))
             {
                 foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
                 {
-                    if (!go.GetComponent<Unit>().CanMove(rayHit.point))
+                    if (!go.GetComponent<Unit>().CanMove())
                     {
                         deselect(go);
                     }
                 }
-                var selectedGOArr = selectedTable.Values.ToArray<GameObject>();
-                NetworkObjectReference[] SelectedReferenceArr = new NetworkObjectReference[selectedGOArr.Length];
+                GameObject[] selectedGameObjects = selectedTable.Values.ToArray<GameObject>();
+                NetworkObjectReference[] SelectedReferenceArr = new NetworkObjectReference[selectedGameObjects.Length];
                 for (int i = 0; i < SelectedReferenceArr.Length; i++)
                 {
-                    SelectedReferenceArr[i] = selectedGOArr[i];
+                    SelectedReferenceArr[i] = selectedGameObjects[i];
                 }
                 //MouveServerRpc(rayHit.point, SelectedReferenceArr);
                 //MouveServerRpc(rayHit.point, selectedTable.Values.ToArray<GameObject>());
-                GameCoordinator.GameCoordinatorSingleton.MouveServerRpc(rayHit.point, SelectedReferenceArr);
+
+                int catLyrMask = (1 << rayHit.collider.gameObject.layer);
+                if (catLyrMask == groundLayer.value) GameCoordinator.GameCoordinatorSingleton.MouveServerRpc(rayHit.point, SelectedReferenceArr);
+                else if (catLyrMask == unitLayer.value) {GameCoordinator.GameCoordinatorSingleton.AttackServerRpc(rayHit.collider.gameObject, SelectedReferenceArr); }
+                else { Debug.LogError(catLyrMask + "golayer<-->ground" + groundLayer.value + " wtf, Yo"); }
             }
             spawnMarker(rayHit.point);
         }
@@ -202,13 +216,6 @@ public class UnitSelector : MonoBehaviour
         }
 
     }
-    //##########      INPUT     ########
-
-
-
-    //##########      MARKERS     ########
-    [SerializeField] GameObject markerPrefab;
-    List<GameObject> markers = new List<GameObject>();
     void spawnMarker(Vector3 point)
     {
         markers.Add(Instantiate(markerPrefab, point, Quaternion.identity));
@@ -263,7 +270,7 @@ public class UnitSelector : MonoBehaviour
                 addSelected(collider.gameObject);
                 //Debug.Log(collider.name);
             }
-            
+
 
         }
     }

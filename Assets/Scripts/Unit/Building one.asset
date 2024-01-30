@@ -28,4 +28,6 @@ MonoBehaviour:
   Actions:
   - action: 3
     id: 2
+  - action: 4
+    id: 5
   Graphics: {fileID: 0}

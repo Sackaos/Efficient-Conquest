@@ -14,11 +14,27 @@ public class Unit : MonoBehaviour
     public ulong OwnerID = 0;
     //UnitSelector USArmy = UnitSelector.SelectorSingleton;
     NavMeshAgent agent;
-    
+    public Transform TargetUnit;
+    public Unit.Actions CurrentAction;
+
     //OwnerID = id;
     void Start()
     {
         if (stats && !stats.IsBuilding) agent = GetComponent<NavMeshAgent>();
+    }
+    private void FixedUpdate()
+    {
+        /*
+          if (following&&UnitSelector.SelectorSingleton.SuperSelected.TargetUnit != null && (UnitSelector.SelectorSingleton.SuperSelected.CurrentAction == Unit.Actions.Move))
+        {
+            GameObject[] selectedGameObjects = UnitSelector.SelectorSingleton.selectedTable.Values.ToArray<GameObject>();
+            NetworkObjectReference[] SelectedReferenceArr = new NetworkObjectReference[selectedGameObjects.Length];
+            for (int i = 0; i < SelectedReferenceArr.Length; i++)
+            {
+                SelectedReferenceArr[i] = selectedGameObjects[i];
+            }
+            MouveServerRpc(transform.position, SelectedReferenceArr);
+        }*/
     }
     public void TakeDamage(int health)
     {
@@ -37,14 +53,17 @@ public class Unit : MonoBehaviour
     {
         agent.destination = position;
     }
-    public bool CanMove(Vector3 position)
+    public bool CanMove()
     {
-        if (!CanDoAction(Actions.Move) || !agent || OwnerID!=UnitSelector.ID) return false;
+        if (!CanDoAction(Actions.Move) || !agent || OwnerID != UnitSelector.ID) return false;
         return true;
     }
 
     public void Follow(Transform transfrom)
     {
+        TargetUnit = transfrom;
+        CurrentAction = Unit.Actions.Move;
+
         //move to follow to move;
     }
     public void Attack(Transform enemy)
@@ -79,7 +98,7 @@ public class Unit : MonoBehaviour
             switch (actionToPerform)
             {
                 case (Actions.Move):
-                    CanMove(new Vector3(5, 0, 8));
+                    CanMove();
                     break;
                 case (Actions.SpawnFunkyStuff):
                     //spawn Funky stuff
@@ -98,6 +117,7 @@ public class Unit : MonoBehaviour
         Move,
         Attack,
         Build,
-        SpawnFunkyStuff
+        SpawnFunkyStuff,
+        Idle
     }
 }

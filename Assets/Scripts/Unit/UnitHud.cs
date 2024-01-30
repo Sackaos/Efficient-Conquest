@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.UIElements;
+//using UnityEngine.UIElements;
 
 public class UnitHud : MonoBehaviour
 {
@@ -37,16 +37,18 @@ public class UnitHud : MonoBehaviour
             Destroy(this);
         }
 
-
+        Button CurButton;
         for (int i = 0; i < 15; i++)
         {
             //instantiate ui at parent.width/5*j+XSpacing*j,parent.height/3*i+YSpacing*i
 
-            Button CurButton = Instantiate(ButtonPrefab, ActionGrid.transform, false).GetComponent<Button>();
+            CurButton = Instantiate(ButtonPrefab, ActionGrid.transform, false).GetComponent<Button>();
             Buttons[i] = CurButton;
+
+            int index = i;
             CurButton.onClick.AddListener(() =>
             {
-                DoFunc(i);
+                DoFunc(index);
             });
             DisableButton(i);
         }
@@ -59,17 +61,19 @@ public class UnitHud : MonoBehaviour
     {
         UnitToDisplay = unit;
         ClearGrid();
-        if (unit!=null) FillGrid();
-        
+        if (unit != null) FillGrid();
+
 
     }
     private void DoFunc(int actionID)
     {
-        Unit.Actions action= Unit.Actions.Empty;
+        Unit.Actions action = Unit.Actions.Empty;
         for (int i = 0; i < UnitToDisplay.stats.Actions.Length; i++)//EADITING THIS LINE
         {
-            if(UnitToDisplay.stats.Actions[i].id== actionID)
+            Debug.Log(UnitToDisplay.stats.Actions[i].id + "   " + actionID);
+            if (UnitToDisplay.stats.Actions[i].id == actionID)
             {
+
                 action = UnitToDisplay.stats.Actions[i].action;
                 break;
             }

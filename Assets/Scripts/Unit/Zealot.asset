@@ -27,7 +27,7 @@ MonoBehaviour:
   TechnologyRequirements: 
   Actions:
   - action: 1
-    Spot: 0
+    id: 0
   - action: 2
-    Spot: 5
+    id: 1
   Graphics: {fileID: 843453585471247940, guid: 33a7af532d86d6943923f0052b145d61, type: 3}
