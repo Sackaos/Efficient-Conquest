@@ -16,7 +16,7 @@ MonoBehaviour:
   Name: SlipKnot
   Description: a Band (stk-tshhh) of warriors
   IsBuilding: 0
-  MoveSpeed: 50
+  MoveSpeed: 55
   Health: 500
   Shield: 20
   Damage: 100
