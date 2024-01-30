@@ -20,7 +20,8 @@ public class Unit : MonoBehaviour
     //OwnerID = id;
     void Start()
     {
-        if (stats && !stats.IsBuilding) agent = GetComponent<NavMeshAgent>();
+        if (stats && !stats.IsBuilding)
+            agent = GetComponent<NavMeshAgent>();
     }
     private void FixedUpdate()
     {
@@ -55,7 +56,9 @@ public class Unit : MonoBehaviour
     }
     public bool CanMove()
     {
-        if (!CanDoAction(Actions.Move) || !agent || OwnerID != UnitSelector.ID) return false;
+        Debug.Log(!(!CanDoAction(Actions.Move) || !agent || OwnerID != GameCoordinator.OwnerId) + "  UnitId " + OwnerID+"   gamecoordinators id "+ GameCoordinator.OwnerId);
+        if (!CanDoAction(Actions.Move) || !agent || OwnerID != GameCoordinator.OwnerId)
+            return false;
         return true;
     }
 
@@ -68,8 +71,7 @@ public class Unit : MonoBehaviour
     }
     public void Attack(Transform enemy)
     {
-        if (CanAttack(enemy.GetComponent<Unit>()) && agent)
-        {
+        if (CanAttack(enemy.GetComponent<Unit>()) && agent) {
             agent.destination = enemy.position;
             //doAttackStuff
         }
@@ -84,8 +86,7 @@ public class Unit : MonoBehaviour
     public bool CanDoAction(Actions actionToCheck)
     {
         bool flag = false;
-        foreach (ActionSet set in stats.Actions)
-        {
+        foreach (ActionSet set in stats.Actions) {
             if (set.action == actionToCheck) { flag = true; break; }
         }
         return flag;
@@ -95,17 +96,16 @@ public class Unit : MonoBehaviour
     {
         bool flag = CanDoAction(actionToPerform);
         if (flag)
-            switch (actionToPerform)
-            {
+            switch (actionToPerform) {
                 case (Actions.Move):
-                    CanMove();
-                    break;
+                CanMove();
+                break;
                 case (Actions.SpawnFunkyStuff):
-                    //spawn Funky stuff
-                    break;
+                //spawn Funky stuff
+                break;
                 default:
-                    Debug.LogError("WTF");
-                    break;
+                Debug.LogError("WTF");
+                break;
             }
 
         return true;

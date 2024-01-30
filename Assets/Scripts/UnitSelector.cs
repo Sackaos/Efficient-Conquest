@@ -15,74 +15,57 @@ using UnityEngine.Timeline;
 
 public class UnitSelector : MonoBehaviour
 {
+    //NEED TO IMPLEMENT GROUPS(1-9 gets units)
+    /**
+    * the halo game object  must be located at this hard coded child index
+    */
 
     public static UnitSelector SelectorSingleton;
-    public static ulong ID;//NEED TO FIND A WAY TO UNSELECT UNITS NOT MINE
+
     public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
     public Unit SuperSelected { get; private set; }
-    RaycastHit hit;
-    bool dragSelect = false;
-
+    public Vector3 startMousePos = Vector3.zero;
     public LayerMask unitLayer;
     public LayerMask groundLayer;
-
-    Vector3 startMousePos = Vector3.zero, endMousePos = Vector3.zero;
-    //##########      INPUT     ########
-
+    private static int HALO_CHILD_INDEX = 0;
+    public bool dragSelect = false;
 
 
-    //##########      MARKERS     ########
-    [SerializeField] GameObject markerPrefab;
-    List<GameObject> markers = new List<GameObject>();
     private void Awake()
     {
-        if (!SelectorSingleton)
-        {
+        if (!SelectorSingleton) {
             SelectorSingleton = this;
             return;
-        }
-        else
-        {
+        } else {
             Debug.LogError("BAUBAU! UNIT SELECTOR not SINGLETON");
             Destroy(this);
 
         }
         unitLayer = LayerMask.GetMask("Unit");
         groundLayer = LayerMask.GetMask("Ground");
+
     }
-    private void Start()
-    {
-        ID = new ServerRpcParams().Receive.SenderClientId;
-        Debug.Log(ID);
-    }
-    /*
-     * public override void OnNetworkSpawn()
+
+    /* public override void OnNetworkSpawn()
     {
         if (!IsOwner) Destroy(this);
-    }
-    */
-    //##########      SELECTION     ########
+    } */
 
+    //##########      SELECTION     ########
     public void addSelected(GameObject gameObject)
     {
         selectionVisualizer(gameObject);
         int id = gameObject.GetInstanceID();
-        if (!selectedTable.ContainsKey(id))
-        {
+        if (!selectedTable.ContainsKey(id)) {
             selectedTable.Add(id, gameObject);
-        }
-        else
-        {
+        } else {
             deselect(gameObject);
         }
 
-        if (selectedTable.Count > 0)
-        {
+        if (selectedTable.Count > 0) {
             SuperSelected = selectedTable.Values.ToArray<GameObject>()[0].GetComponent<Unit>();
             UnitHud.UnitHudSingleton.DisplayUnit(SuperSelected);
         }
-
-
     }
     public void deselect(GameObject gameObject)
     {
@@ -93,20 +76,25 @@ public class UnitSelector : MonoBehaviour
     }
     public void deselectAll()
     {
-        foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
-        {
+        foreach (GameObject go in selectedTable.Values.ToList<GameObject>()) {
             deselect(go);
         }
     }
 
+    internal NetworkObjectReference[] newFunc()
+    {
+        GameObject[] selectedGameObjects = selectedTable.Values.ToArray<GameObject>();
+        NetworkObjectReference[] SelectedReferenceArr = new NetworkObjectReference[selectedGameObjects.Length];
+        for(int i = 0; i < SelectedReferenceArr.Length; i++) {
+            SelectedReferenceArr[i] = selectedGameObjects[i];
+        }
+        return SelectedReferenceArr;
+    }
+
     private void selectionVisualizer(GameObject gameObject)
     {
-        Debug.Log(gameObject.name);
-        gameObject.transform.GetChild(0).gameObject.SetActive(true);
-
-        //gameObject.transform.GetChild(0).gameObject.transform.position.y=GetComponent<Renderer>().bounds.size
-
-
+        gameObject.transform.GetChild(HALO_CHILD_INDEX).gameObject.SetActive(true);
+        //gameObject.transform.GetChild(HALO_CHILD_INDEX).gameObject.transform.position.y=GetComponent<Renderer>().bounds.size
         gameObject.GetComponent<Renderer>().material.color = Color.red;
 
     }
@@ -116,165 +104,73 @@ public class UnitSelector : MonoBehaviour
         gameObject.GetComponent<Renderer>().material.color = Color.white;
 
     }
-    //##########      SELECTION     ########
-
-
-
-    //##########      INPUT     ########
-
-
-    private void Update()
+    public void selectUnitUnderMouse()
     {
-
-        LeftClick();
-        RightClick();
-
-
-    }
-
-
-    private void RightClick()
-    {
-        //Debug.Log(selectedTable.Count);
-        if (Input.GetMouseButtonDown(1) && selectedTable.Count > 0)
-        {
-            var cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(cameraRay.origin, cameraRay.direction, out RaycastHit rayHit, 5000, groundLayer + unitLayer))
-            {
-                foreach (GameObject go in selectedTable.Values.ToList<GameObject>())
-                {
-                    if (!go.GetComponent<Unit>().CanMove())
-                    {
-                        deselect(go);
-                    }
-                }
-                GameObject[] selectedGameObjects = selectedTable.Values.ToArray<GameObject>();
-                NetworkObjectReference[] SelectedReferenceArr = new NetworkObjectReference[selectedGameObjects.Length];
-                for (int i = 0; i < SelectedReferenceArr.Length; i++)
-                {
-                    SelectedReferenceArr[i] = selectedGameObjects[i];
-                }
-                //MouveServerRpc(rayHit.point, SelectedReferenceArr);
-                //MouveServerRpc(rayHit.point, selectedTable.Values.ToArray<GameObject>());
-
-                int catLyrMask = (1 << rayHit.collider.gameObject.layer);
-                if (catLyrMask == groundLayer.value) GameCoordinator.GameCoordinatorSingleton.MouveServerRpc(rayHit.point, SelectedReferenceArr);
-                else if (catLyrMask == unitLayer.value) {GameCoordinator.GameCoordinatorSingleton.AttackServerRpc(rayHit.collider.gameObject, SelectedReferenceArr); }
-                else { Debug.LogError(catLyrMask + "golayer<-->ground" + groundLayer.value + " wtf, Yo"); }
-            }
-            spawnMarker(rayHit.point);
+        Ray ray = Camera.main.ScreenPointToRay(startMousePos);
+        if (Physics.Raycast(ray, out RaycastHit hit, 5000f, unitLayer)) {
+            addSelected(hit.transform.gameObject);
         }
     }
-    private void LeftClick()
+    public void boxSelect(Vector3 startMousePos, Vector3 endMousePos)
     {
-        //Left click
-        if (Input.GetMouseButtonDown(0))
-        {
-            startMousePos = Input.mousePosition;
-        }
-        if (Input.GetMouseButton(0))
-        {
-            if ((startMousePos - Input.mousePosition).magnitude > 40)
-            {
-                dragSelect = true;
-            }
-            else dragSelect = false;
-        }
-        if (Input.GetMouseButtonUp(0))
-        {
-
-            endMousePos = Input.mousePosition;
-            if (!dragSelect)//single select
-            {
-                Ray ray = Camera.main.ScreenPointToRay(startMousePos);
-                if (Physics.Raycast(ray, out hit, 5000f, unitLayer))
-                {
-                    if (Input.GetKey(KeyCode.LeftShift))
-                    {
-                        addSelected(hit.transform.gameObject);
-                    }
-                    else
-                    {
-                        deselectAll();
-                        addSelected(hit.transform.gameObject);
-
-                    }
-                }
-                //if no units
-                else if (!Input.GetKey(KeyCode.LeftShift))
-                {
-                    deselectAll();
-                }
-            }
-            else//box select
-            {
-                if (!Input.GetKey(KeyCode.LeftShift)) deselectAll();
-                boxSelect(startMousePos, endMousePos);
-            }
-            dragSelect = false;
-
-        }
-
-    }
-    void spawnMarker(Vector3 point)
-    {
-        markers.Add(Instantiate(markerPrefab, point, Quaternion.identity));
-        Invoke("DestroyLatestMarker", 0.75f);
-    }
-    void DestroyLatestMarker()
-    {
-        GameObject marker = markers.First();
-        markers.Remove(marker);
-        Destroy(marker);
-    }
-    //##########      MARKERS     ########
-
-
-
-
-
-    void boxSelect(Vector3 startMousePos, Vector3 endMousePos)
-    {
-        /*Debug.Log("###");
-        Collider[] colliders = Physics.OverlapBox(startPos, UtilsClass.GetMouseWorldPosition());
-        foreach (var collider in colliders)
-        {
-            Debug.Log(collider);
-        }
-        startPos = Mouse.current.position.ReadValue();
-        startPos = UtilsClass.GetMouseWorldPosition();
-        bool pressed = value.isPressed;
-        Debug.Log(value.Get<float>()+"##"+pressed+"####"+startPos);*/
-
         Vector3 startBoxPos = Vector3.zero, endBoxPos = Vector3.zero;
         if (Physics.Raycast(
             Camera.main.ScreenPointToRay(startMousePos),
-            out RaycastHit hitter, 5000, groundLayer))
-        {
+            out RaycastHit hitter, 5000, groundLayer)) {
             startBoxPos = hitter.point;
         }
         if (Physics.Raycast(
             Camera.main.ScreenPointToRay(endMousePos)
-            , out RaycastHit hitter2, 5000, groundLayer))
-        {
-            endBoxPos = hitter2.point;
+            , out hitter, 5000, groundLayer)) {
+            endBoxPos = hitter.point;
             Vector3 center = (startBoxPos + endBoxPos) / 2;
             Vector3 extentsosia = (endBoxPos - startBoxPos) / 2;
             Vector3 extents = new Vector3(Mathf.Abs(extentsosia.x), Mathf.Abs(extentsosia.y), Mathf.Abs(extentsosia.z));
             extents.y = 20;
             Collider[] colliders = Physics.OverlapBox(center, extents, Quaternion.Euler(Camera.main.transform.forward), unitLayer);
 
-            foreach (var collider in colliders)
-            {
+            foreach (var collider in colliders) {
                 //if(Own(unit))
                 addSelected(collider.gameObject);
-                //Debug.Log(collider.name);
             }
 
 
         }
     }
 
+
+    //##########      MARKERS     ########
+    [SerializeField] GameObject markerPrefab;
+    List<GameObject> markers = new List<GameObject>();
+    public void SpawnMarker(Vector3 point)
+    {
+        markers.Add(Instantiate(markerPrefab, point, Quaternion.identity));
+        Invoke("DestroyLatestMarker", 0.75f);
+    }
+    public void DestroyLatestMarker()
+    {
+        GameObject marker = markers.First();
+        markers.Remove(marker);
+        Destroy(marker);
+    }
+
+    //##########      GUI     ########
+    private void OnGUI()
+    {
+        DrawMarquee();
+
+    }
+    private void DrawMarquee()
+    {
+        if (!dragSelect)
+            return;
+
+        var rect = SelectorGUI.GetScreenRect(startMousePos, Input.mousePosition);
+        SelectorGUI.DrawScreenRect(rect, new Color(0.8f, 0.8f, 0.95f, 0.15f));
+        SelectorGUI.DrawScreenRectBorder(rect, 2, new Color(0.8f, 0.8f, 0.95f));
+
+
+    }
 
 
     /*[ServerRpc(RequireOwnership = false)]
@@ -323,15 +219,4 @@ public class UnitSelector : MonoBehaviour
         }
     }*/
 
-    private void OnGUI()
-    {
-        if (dragSelect)
-        {
-            var rect = SelectorGUI.GetScreenRect(startMousePos, Input.mousePosition);
-            SelectorGUI.DrawScreenRect(rect, new Color(0.8f, 0.8f, 0.95f, 0.15f));
-            SelectorGUI.DrawScreenRectBorder(rect, 2, new Color(0.8f, 0.8f, 0.95f));
-
-        }
-
-    }
 }

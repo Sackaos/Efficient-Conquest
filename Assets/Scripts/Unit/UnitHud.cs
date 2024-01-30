@@ -27,19 +27,15 @@ public class UnitHud : MonoBehaviour
 
     private void Awake()
     {
-        if (!UnitHudSingleton)
-        {
+        if(!UnitHudSingleton) {
             UnitHudSingleton = this;
-        }
-        else
-        {
+        } else {
             Debug.LogError("BAUBAU! UnitHudSingleton not SINGLETON");
             Destroy(this);
         }
 
         Button CurButton;
-        for (int i = 0; i < 15; i++)
-        {
+        for(int i = 0; i < 15; i++) {
             //instantiate ui at parent.width/5*j+XSpacing*j,parent.height/3*i+YSpacing*i
 
             CurButton = Instantiate(ButtonPrefab, ActionGrid.transform, false).GetComponent<Button>();
@@ -61,25 +57,23 @@ public class UnitHud : MonoBehaviour
     {
         UnitToDisplay = unit;
         ClearGrid();
-        if (unit != null) FillGrid();
+        if(unit != null)
+            FillGrid();
 
 
     }
     private void DoFunc(int actionID)
     {
         Unit.Actions action = Unit.Actions.Empty;
-        for (int i = 0; i < UnitToDisplay.stats.Actions.Length; i++)//EADITING THIS LINE
+        for(int i = 0; i < UnitToDisplay.stats.Actions.Length; i++)//EADITING THIS LINE
         {
-            Debug.Log(UnitToDisplay.stats.Actions[i].id + "   " + actionID);
-            if (UnitToDisplay.stats.Actions[i].id == actionID)
-            {
+            if(UnitToDisplay.stats.Actions[i].id == actionID) {
 
                 action = UnitToDisplay.stats.Actions[i].action;
                 break;
             }
         }
-        switch (action)
-        {
+        switch(action) {
             case Unit.Actions.Empty:
                 Debug.LogError("OhNyoooo not supposed to be:(  unitHud Switch(Action)");
                 break;
@@ -98,15 +92,13 @@ public class UnitHud : MonoBehaviour
     }
     private void FillGrid()
     {
-        foreach (var action in UnitToDisplay.stats.Actions)
-        {
+        foreach(var action in UnitToDisplay.stats.Actions) {
             EnableButton(action.id, action.action + "");
         }
     }
     private void ClearGrid()
     {
-        for (int i = 0; i < Buttons.Length; i++)
-        {
+        for(int i = 0; i < Buttons.Length; i++) {
             DisableButton(i);
         }
 

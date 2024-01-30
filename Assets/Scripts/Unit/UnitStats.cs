@@ -5,7 +5,6 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Scriptable object/Inventory item")]
 public class UnitStats : ScriptableObject
 {
-    public Sprite Icon;
     public string Name;
     [TextArea(4, 4)]
     public string Description;
@@ -16,12 +15,15 @@ public class UnitStats : ScriptableObject
     public int Damage;
     public float AttackSpeed;
     public float AttackRange;
+
     public int Resource1Cost;
     public int Resource2Cost;
     public Technologies[] TechnologyRequirements;
     public ActionSet[] Actions;
-    public GameObject Graphics;
 
+    public GameObject prefab;
+    public Sprite sprite;
+    //sounds
 
 }
 public enum Technologies

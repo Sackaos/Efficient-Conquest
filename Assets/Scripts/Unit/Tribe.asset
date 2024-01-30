@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0d903db0bda543e40884cde982854deb, type: 3}
-  m_Name: Zealot
+  m_Name: Tribe
   m_EditorClassIdentifier: 
-  Icon: {fileID: 0}
   Name: SlipKnot
   Description: a Band (stk-tshhh) of warriors
   IsBuilding: 0
-  MoveSpeed: 55
+  MoveSpeed: 50
   Health: 500
   Shield: 20
   Damage: 100
@@ -30,4 +29,5 @@ MonoBehaviour:
     id: 0
   - action: 2
     id: 1
-  Graphics: {fileID: 843453585471247940, guid: 33a7af532d86d6943923f0052b145d61, type: 3}
+  prefab: {fileID: 843453585471247940, guid: 33a7af532d86d6943923f0052b145d61, type: 3}
+  sprite: {fileID: 0}

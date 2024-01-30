@@ -646,6 +646,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: b0d8adb30bac63347833bb70f0425b5f, type: 2}
   OwnerID: 1
+  TargetUnit: {fileID: 0}
+  CurrentAction: 0
 --- !u!195 &113197163
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1050,9 +1052,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GlobalObjectIdHash: 2953711626
   AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
+  SynchronizeTransform: 0
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
@@ -1083,7 +1085,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12062a6f678822643b2c8ad99e664f8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  booboabas: {fileID: 843453585471247940, guid: 33a7af532d86d6943923f0052b145d61, type: 3}
 --- !u!1 &220441254
 GameObject:
   m_ObjectHideFlags: 0
@@ -4649,6 +4650,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: b0d8adb30bac63347833bb70f0425b5f, type: 2}
   OwnerID: 0
+  TargetUnit: {fileID: 0}
+  CurrentAction: 0
 --- !u!195 &1259360994
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -5192,6 +5195,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: b0d8adb30bac63347833bb70f0425b5f, type: 2}
   OwnerID: 1
+  TargetUnit: {fileID: 0}
+  CurrentAction: 0
 --- !u!195 &1454857117
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -6094,6 +6099,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stats: {fileID: 11400000, guid: 845f525b973530b48b73cc6a12a388c6, type: 2}
   OwnerID: 0
+  TargetUnit: {fileID: 0}
+  CurrentAction: 0
 --- !u!1 &1743480828
 GameObject:
   m_ObjectHideFlags: 0

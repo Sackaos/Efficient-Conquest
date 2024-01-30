@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d903db0bda543e40884cde982854deb, type: 3}
   m_Name: Building one
   m_EditorClassIdentifier: 
-  Icon: {fileID: 0}
   Name: name
   Description: desc
   IsBuilding: 1
@@ -30,4 +29,5 @@ MonoBehaviour:
     id: 2
   - action: 4
     id: 5
-  Graphics: {fileID: 0}
+  prefab: {fileID: 843453585471247940, guid: 33a7af532d86d6943923f0052b145d61, type: 3}
+  sprite: {fileID: 0}
