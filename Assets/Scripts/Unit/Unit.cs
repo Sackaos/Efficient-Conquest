@@ -20,7 +20,7 @@ public class Unit : MonoBehaviour
     //OwnerID = id;
     void Start()
     {
-        if (stats && !stats.IsBuilding)
+        if(stats && !stats.IsBuilding)
             agent = GetComponent<NavMeshAgent>();
     }
     private void FixedUpdate()
@@ -53,11 +53,11 @@ public class Unit : MonoBehaviour
     public void MoveTo(Vector3 position)
     {
         agent.destination = position;
+        CurrentAction = Unit.Actions.Move;
     }
     public bool CanMove()
     {
-        Debug.Log(!(!CanDoAction(Actions.Move) || !agent || OwnerID != GameCoordinator.OwnerId) + "  UnitId " + OwnerID+"   gamecoordinators id "+ GameCoordinator.OwnerId);
-        if (!CanDoAction(Actions.Move) || !agent || OwnerID != GameCoordinator.OwnerId)
+        if(!CanDoAction(Actions.Move) || !agent || OwnerID != GameCoordinator.OwnerId)
             return false;
         return true;
     }
@@ -71,23 +71,23 @@ public class Unit : MonoBehaviour
     }
     public void Attack(Transform enemy)
     {
-        if (CanAttack(enemy.GetComponent<Unit>()) && agent) {
+        if(CanAttack(enemy.GetComponent<Unit>()) && agent) {
             agent.destination = enemy.position;
             //doAttackStuff
         }
     }
-    public bool CanAttack(Unit unit)
+    public bool CanAttack(Unit target)
     {
-        //if(!isAlly&&CanAttackAirIfAir)
-        if (OwnerID != unit.OwnerID)
-            return true;
+        //if(!isAlly&&InRange&&CanAttackAirIfAir)
+        if(OwnerID != target.OwnerID && Vector2.Distance(new Vector2(transform.position.x, transform.position.y), new Vector2(target.transform.position.x, target.transform.position.y);
+        return true;
         return false;
     }
     public bool CanDoAction(Actions actionToCheck)
     {
         bool flag = false;
-        foreach (ActionSet set in stats.Actions) {
-            if (set.action == actionToCheck) { flag = true; break; }
+        foreach(ActionSet set in stats.Actions) {
+            if(set.action == actionToCheck) { flag = true; break; }
         }
         return flag;
 
@@ -95,17 +95,17 @@ public class Unit : MonoBehaviour
     public bool DoAction(Actions actionToPerform)
     {
         bool flag = CanDoAction(actionToPerform);
-        if (flag)
-            switch (actionToPerform) {
+        if(flag)
+            switch(actionToPerform) {
                 case (Actions.Move):
-                CanMove();
-                break;
+                    CanMove();
+                    break;
                 case (Actions.SpawnFunkyStuff):
-                //spawn Funky stuff
-                break;
+                    //spawn Funky stuff
+                    break;
                 default:
-                Debug.LogError("WTF");
-                break;
+                    Debug.LogError("WTF");
+                    break;
             }
 
         return true;
@@ -115,6 +115,7 @@ public class Unit : MonoBehaviour
     {
         Empty,
         Move,
+        Mine,
         Attack,
         Build,
         SpawnFunkyStuff,

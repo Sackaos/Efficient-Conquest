@@ -23,6 +23,8 @@ public class UnitSelector : MonoBehaviour
     public static UnitSelector SelectorSingleton;
 
     public Dictionary<int, GameObject> selectedTable { get; private set; } = new Dictionary<int, GameObject>();
+    public Dictionary<int, GameObject>[] controlGroups { get; private set; } = new Dictionary<int, GameObject>[10];
+
     public Unit SuperSelected { get; private set; }
     public Vector3 startMousePos = Vector3.zero;
     public LayerMask unitLayer;
@@ -33,7 +35,7 @@ public class UnitSelector : MonoBehaviour
 
     private void Awake()
     {
-        if (!SelectorSingleton) {
+        if(!SelectorSingleton) {
             SelectorSingleton = this;
             return;
         } else {
@@ -43,7 +45,6 @@ public class UnitSelector : MonoBehaviour
         }
         unitLayer = LayerMask.GetMask("Unit");
         groundLayer = LayerMask.GetMask("Ground");
-
     }
 
     /* public override void OnNetworkSpawn()
@@ -56,31 +57,37 @@ public class UnitSelector : MonoBehaviour
     {
         selectionVisualizer(gameObject);
         int id = gameObject.GetInstanceID();
-        if (!selectedTable.ContainsKey(id)) {
+        if(!selectedTable.ContainsKey(id)) {
             selectedTable.Add(id, gameObject);
         } else {
-            deselect(gameObject);
+            deselect(selectedTable, gameObject);
         }
 
-        if (selectedTable.Count > 0) {
+        if(selectedTable.Count > 0) {
             SuperSelected = selectedTable.Values.ToArray<GameObject>()[0].GetComponent<Unit>();
             UnitHud.UnitHudSingleton.DisplayUnit(SuperSelected);
         }
     }
-    public void deselect(GameObject gameObject)
+    public void deselect(Dictionary<int, GameObject> table,GameObject gameObject)
     {
         undoVisualization(gameObject);
         selectedTable.Remove(gameObject.GetInstanceID());
-        if (selectedTable.Count == 0) { UnitHud.UnitHudSingleton.DisplayUnit(null); }
+        if(selectedTable.Count == 0) { UnitHud.UnitHudSingleton.DisplayUnit(null); }
 
     }
-    public void deselectAll()
+    public void deselectAllFromTable(Dictionary<int,GameObject> table)
     {
-        foreach (GameObject go in selectedTable.Values.ToList<GameObject>()) {
-            deselect(go);
+        foreach(GameObject go in table.Values.ToList<GameObject>()) {
+            deselect(table,go);
         }
     }
 
+    public void AddSelectionToControlGroup(Dictionary<int, GameObject> controlGroup)
+    {
+        foreach(GameObject go in selectedTable.Values.ToList<GameObject>()) {
+            controlGroup.Add(go.GetInstanceID(),go);
+        }
+    }
     internal NetworkObjectReference[] newFunc()
     {
         GameObject[] selectedGameObjects = selectedTable.Values.ToArray<GameObject>();
@@ -107,19 +114,19 @@ public class UnitSelector : MonoBehaviour
     public void selectUnitUnderMouse()
     {
         Ray ray = Camera.main.ScreenPointToRay(startMousePos);
-        if (Physics.Raycast(ray, out RaycastHit hit, 5000f, unitLayer)) {
+        if(Physics.Raycast(ray, out RaycastHit hit, 5000f, unitLayer)) {
             addSelected(hit.transform.gameObject);
         }
     }
     public void boxSelect(Vector3 startMousePos, Vector3 endMousePos)
     {
         Vector3 startBoxPos = Vector3.zero, endBoxPos = Vector3.zero;
-        if (Physics.Raycast(
+        if(Physics.Raycast(
             Camera.main.ScreenPointToRay(startMousePos),
             out RaycastHit hitter, 5000, groundLayer)) {
             startBoxPos = hitter.point;
         }
-        if (Physics.Raycast(
+        if(Physics.Raycast(
             Camera.main.ScreenPointToRay(endMousePos)
             , out hitter, 5000, groundLayer)) {
             endBoxPos = hitter.point;
@@ -129,7 +136,7 @@ public class UnitSelector : MonoBehaviour
             extents.y = 20;
             Collider[] colliders = Physics.OverlapBox(center, extents, Quaternion.Euler(Camera.main.transform.forward), unitLayer);
 
-            foreach (var collider in colliders) {
+            foreach(var collider in colliders) {
                 //if(Own(unit))
                 addSelected(collider.gameObject);
             }
@@ -162,7 +169,7 @@ public class UnitSelector : MonoBehaviour
     }
     private void DrawMarquee()
     {
-        if (!dragSelect)
+        if(!dragSelect)
             return;
 
         var rect = SelectorGUI.GetScreenRect(startMousePos, Input.mousePosition);
